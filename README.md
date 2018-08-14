@@ -1,7 +1,7 @@
-# RAIITimer
+# ScopeTimer
 A lighweight timer in C++ using RAII for simplicity. 
 
-RAIITimer introduces global state which stores results for the timers as RAIITimer objects fall out of scope. This means a simple declaration of a timer within a certain scope is enough to measure the time it takes. 
+ScopeTimer introduces global state which stores results for the timers as ScopeTimer objects fall out of scope. This means a simple declaration of a timer within a certain scope is enough to measure the time it takes. 
 
 # Examples: 
 
@@ -9,7 +9,7 @@ Measuring how long something takes:
 
 ```cpp
 {
-  RAIITimer something("something");
+  ScopeTimer something("something");
   do_something();
 }
 ```
@@ -19,7 +19,7 @@ In this case, we'll assume `fetch_data()` is called multiple times during the ex
 ```cpp
 // Use the same timer to measure two separate events
 {
-  RAIITimer data_fetching("data fetching");
+  ScopeTimer data_fetching("data fetching");
   fetch_data(); 
 } 
 
@@ -27,7 +27,7 @@ In this case, we'll assume `fetch_data()` is called multiple times during the ex
 
 { 
   // This timer will add to the previous "data fetching" timer 
-  RAIITimer data_fetching("data fetching");
+  ScopeTimer data_fetching("data fetching");
   fetch_data();
 } 
 ```
