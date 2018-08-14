@@ -7,6 +7,9 @@ void fetch_data_mock(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
+// To simplify the code in this example 
+using ScopeTimer = GlobalTimerData::ScopeTimer;
+
 int main() {
 
   {

@@ -6,12 +6,6 @@
 
 #pragma once
 
-
-// Could be std::string_vew in the future,
-// but since that requires the usage of 
-// gcc7+ it'll be std::string for now.
-using TimerID        = std::string;
-
 class TimerTotal {
   
   private:
@@ -48,6 +42,11 @@ std::ostream& operator<<(std::ostream& os, const TimerTotal& timer_info) {
     return os << timer_info.elapsed_time_total.count() << " (ns)";
 }
 
+// Could be std::string_vew in the future,
+// but since that requires the usage of 
+// gcc7+ it'll be std::string for now.
+using TimerID        = std::string;
+
 class GlobalTimerData : public std::unordered_map<TimerID, TimerTotal> {
 
   private:
@@ -60,6 +59,8 @@ class GlobalTimerData : public std::unordered_map<TimerID, TimerTotal> {
 
   public:
     
+    class ScopeTimer;     
+
     static GlobalTimerData& getInstance() {
       return gti; 
     } 
@@ -85,7 +86,7 @@ std::ostream& operator<<(std::ostream& os, const GlobalTimerData& global_timer_i
     return os;
 }
 
-class ScopeTimer {
+class GlobalTimerData::ScopeTimer {
   private:
 
     TimerID timer_id;
