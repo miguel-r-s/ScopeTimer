@@ -34,3 +34,44 @@ In this case, we'll assume `fetch_data()` is called multiple times during the ex
 
 The two timers with the same name will be added up. This is useful when measuring how much time is spent in a certain type of activity that is spread accross multiple places in the code.
 
+To access the data:
+
+```cpp
+ std::cout << GlobalTimerData::get() << std::endl;
+```
+
+Note that `GlobalTimerData` only stores data regarding timers that have already fallen out of scope, so the following program will print nothing:
+
+```cpp
+int main() {
+
+  ScopeTimer st("scope timer");
+  std::cout << GlobalTimerData::get() << std::endl;
+  
+  return 0;
+}
+```
+
+While the following:
+
+```cpp
+int main() {
+
+  {
+    ScopeTimer st("scope timer 1");
+  }
+  std::cout << GlobalTimerData::get() << std::endl;
+  
+  return 0;
+}
+```
+Yields:
+
+```
+Timer Info
+----------
+scope timer 1: 261 (ns)
+```
+
+
+   
