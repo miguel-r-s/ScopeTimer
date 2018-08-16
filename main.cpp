@@ -12,6 +12,9 @@ using ScopeTimer = GlobalTimerData::ScopeTimer;
 
 int main() {
 
+  { ScopeTimer empty1("empty1"); }
+  { ScopeTimer empty2("empty2"); }
+
   {
     // Measure the time spent on one activity 
     ScopeTimer for_loop("for loop time");
@@ -43,6 +46,6 @@ int main() {
     ScopeTimer empty_scope("error margin");
   }
 
-  std::cout << ScopeTimer::getGlobalTimerData() << std::endl;
+  std::cout << GlobalTimerData::get() << std::endl;
   return 0;
 }

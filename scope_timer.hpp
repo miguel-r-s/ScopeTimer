@@ -18,36 +18,23 @@ class TimerTotal {
     TimerPrecision  elapsed_time_total;
 
     friend std::ostream& operator<<(std::ostream& os, const TimerTotal& timer_info);
-  
+
   public:
  
-    TimerTotal() 
-      : elapsed_time_init(Clock::now()) {}
+    TimerTotal();
+    TimerTotal(TimerCounter elapsed_time_init);
 
-    TimerTotal(TimerCounter elapsed_time_init)
-      : elapsed_time_init(elapsed_time_init) {}
+    TimerTotal& operator+=(const TimerTotal& tt);      
 
-    TimerTotal& operator+=(const TimerTotal& tt) {
-      
-      elapsed_time_total += tt.elapsed_time_total;   
-      return *this;
-    } 
-
-    inline void stopTimer() {
-      elapsed_time_total = Clock::now() - elapsed_time_init;
-    }
+    void stopTimer();
 };
-
-std::ostream& operator<<(std::ostream& os, const TimerTotal& timer_info) {
-    return os << timer_info.elapsed_time_total.count() << " (ns)";
-}
 
 // Could be std::string_vew in the future,
 // but since that requires the usage of 
 // gcc7+ it'll be std::string for now.
-using TimerID        = std::string;
+using TimerID = std::string;
 
-class GlobalTimerData : public std::unordered_map<TimerID, TimerTotal> {
+class GlobalTimerData : private std::unordered_map<TimerID, TimerTotal> {
 
   private:
 
@@ -61,32 +48,19 @@ class GlobalTimerData : public std::unordered_map<TimerID, TimerTotal> {
     
     class ScopeTimer;     
 
-    static GlobalTimerData& getInstance() {
-      return gti; 
-    } 
+    // The exposure of GlobalTimerData to the "outside world"
+    // is done through this getter.
+    // The const qualifier guarantees GlobalTimerData 
+    // is not modified by client code.
+    static const GlobalTimerData& get();
+    
+    static void postTimer(const TimerID& timer_id, const TimerTotal& timer_total);
 
     friend std::ostream& operator<<(std::ostream& os, const GlobalTimerData& global_timer_info);
 };
 
-GlobalTimerData GlobalTimerData::gti {};
-
-std::ostream& operator<<(std::ostream& os, const GlobalTimerData& global_timer_info) {
-
-    os << "Timer Info" << std::endl;
-    os << "----------" << std::endl;
-
-    // Iterate the elements in the unordered_map<>
-    // and print each of the values.
-    // Order might change between runs, and specially 
-    // between different machines and implementations of 
-    // std::unordered_map<> 
-    for (auto& gti : global_timer_info) {
-        os << gti.first << ": " << gti.second << '\n';
-    }
-    return os;
-}
-
 class GlobalTimerData::ScopeTimer {
+
   private:
 
     TimerID timer_id;
@@ -94,26 +68,8 @@ class GlobalTimerData::ScopeTimer {
 
   public:
 
-    ScopeTimer(const TimerID& timer_id)
-      : timer_id(timer_id),
-        timer_total() {}
+    ScopeTimer(const TimerID& timer_id);
 
-
-    // Time is registered when ScopeTimer
-    // falls out of scope. 
-    ~ScopeTimer() {
-
-      timer_total.stopTimer();
- 
-      GlobalTimerData& global_timer_info = GlobalTimerData::getInstance();   
-      global_timer_info[timer_id] += timer_total; 
-    }
-
-    // The exposure of GlobalTimerData to the "outside world"
-    // is done through this getter.
-    // The const qualifier guarantees GlobalTimerData 
-    // is not modified by client code.
-    static const GlobalTimerData& getGlobalTimerData() {
-      return GlobalTimerData::getInstance();
-    }
+    // Time is posted when ScopeTimer falls out of scope. 
+    ~ScopeTimer();
 };
